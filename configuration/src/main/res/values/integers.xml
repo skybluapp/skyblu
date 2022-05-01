@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="maps_zoom">15</integer>
+    <integer name="maps_width">1000</integer>
+    <integer name="maps_height">1000</integer>
+</resources>

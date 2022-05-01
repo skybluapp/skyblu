@@ -1,0 +1,23 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "Skyblu"
+include ':app'
+include ':configuration'
+include ':models'
+include ':dependancyInjection'
+include ':data'
+include ':userinterface'
+include ':trackingservice'
+include ':messagingService'

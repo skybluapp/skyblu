@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1957431225/SkyBlu.iml" filepath="$PROJECT_DIR$/.idea/modules/-1957431225/SkyBlu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1419203673/SkyBlu.app.iml" filepath="$PROJECT_DIR$/.idea/modules/1419203673/SkyBlu.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/180929842/SkyBlu.models.iml" filepath="$PROJECT_DIR$/.idea/modules/180929842/SkyBlu.models.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-406109610/SkyBlu.trackingservice.iml" filepath="$PROJECT_DIR$/.idea/modules/-406109610/SkyBlu.trackingservice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SkyBlu.userinterface.iml" filepath="$PROJECT_DIR$/.idea/modules/SkyBlu.userinterface.iml" />
+    </modules>
+  </component>
+</project>

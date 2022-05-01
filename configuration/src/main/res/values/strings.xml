@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">UserInterface</string>
+    <string name="maps_base_url">https://maps.googleapis.com/maps/api/staticmap?</string>
+    <string name="maps_center_url_prepend">center=</string>
+    <string name="maps_zoom_url_prepend"><![CDATA[&zoom=]]></string>
+    <string name="maps_size_url_prepend"><![CDATA[&size=]]></string>
+    <string name="maps_type_url_prepend"><![CDATA[&maptype=]]></string>
+    <string name="maps_key_url_prepend"><![CDATA[&key=]]></string>
+    <string name="maps_type"><![CDATA[&key=]]></string>
+    <string name="route_splash">splash</string>
+    <string name="route_logged_in">loggedIn</string>
+    <string name="route_home">home</string>
+    <string name="route_profile">profile</string>
+    <string name="skydive_ID">skydiveID</string>
+</resources>
