@@ -1,26 +1,38 @@
 package com.skyblu.userinterface.viewmodels
 
-import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skyblu.configuration.Dropzone
+import com.skyblu.configuration.PreferenceKeys
 import com.skyblu.data.Repository
-import com.skyblu.data.datastore.PreferenceKeys
+
 import com.skyblu.jumptracker.service.ClientToService
 import com.skyblu.models.jump.Jump
-import com.skyblu.models.jump.JumpDatapoint
-import com.skyblu.models.jump.JumpWithDatapoints
-import com.skyblu.userinterface.componants.generateStaticMapsUrl
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
+/**
+ * Holds the current state of the Create Account Screen
+ * @param dropzone the DZ chosen in to the dropzone field
+ * @param title the text entered in the title field
+ * @param jumpNumber the integer entered in the jump number field
+ * @param aircraft the text entered in the aircraft field
+ * @param equipment the text entered in the equipment field
+ * @param description the text entered in the description field
+ * @param isSigning is true when signature canvas is displayed
+ * @param signatureBitmap a bitmap containing the inputted signature
+ * @param currentJumpID ID of the jump being completed
+ * @param currentJumpMapUrl  Google Maps Url of the jump being completed
+ * @param signatureBitmap a bitmap containing the inputted signature
+ */
 data class CompleteSkydiveState(
     val dropzone: MutableState<Dropzone> = mutableStateOf(Dropzone.LANGAR),
     val title: MutableState<String> = mutableStateOf(""),
@@ -29,135 +41,118 @@ data class CompleteSkydiveState(
     val equipment: MutableState<String> = mutableStateOf(""),
     val description: MutableState<String> = mutableStateOf(""),
     val isSigning: MutableState<Boolean> = mutableStateOf(false),
-    val signatureBitmap : MutableState<Bitmap?> = mutableStateOf(null)
-
+    val signatureBitmap: MutableState<Bitmap?> = mutableStateOf(null),
+    val currentJumpID: MutableState<String> = mutableStateOf(""),
+    val currentJumpMapUrl : MutableState<String> = mutableStateOf(""),
 )
 
+/**
+ * Manages data for the Complete Skydive Screen
+ * @param repository Provides an API to communicate with sources of data
+ * @param clientToService Provides an API to send input to the tracking service
+ * @property authentication an interface to communicate with authentication system
+ * @property state contains the current state of the Complete Skydive Screen
+ * @property datastore an interface to communicate with on-device key-value pairs saved for the application
+ * @property writeServer an interface to write data to the remote server
+ * @property storage an interface to read and write data to remote file storage
+ */
 @HiltViewModel
 class CompleteSkydiveViewModel @Inject constructor(
     private val repository: Repository,
-    private val context: Context,
-    val clientToService: ClientToService
+    private val clientToService: ClientToService
 ) : ViewModel() {
 
+    //Screen State
     val state by mutableStateOf(CompleteSkydiveState())
-    val datastore = repository.datastoreInterface
-    val authentication = repository.authenticationInterface
-    val writeServer = repository.writeServerInterface
+
+    //Data Sources
+    private val datastore = repository.datastoreInterface
+    private val authentication = repository.authenticationInterface
+    private val writeServer = repository.writeServerInterface
+    private val storage = repository.storageInterface
 
     init {
         readRecentValues()
     }
 
-    private fun createJump(points: MutableList<JumpDatapoint>): Jump {
+    /**
+     * Creates a jump object using fields contained in state
+     * @return a Jump object created from fields contained in state
+     */
+    private fun createJump(): Jump {
         return Jump(
             title = state.title.value.toString(),
-            jumpID = points[0].jumpID,
+            jumpID = state.currentJumpID.value,
             aircraft = state.aircraft.value,
             equipment = state.equipment.value,
             description = state.description.value,
-            userID = authentication.getThisUserID()!!,
-            staticMapUrl = generateStaticMapsUrl(
-                context = context,
-                points = points
-            ),
+            userID = authentication.thisUser!!,
+            staticMapUrl = state.currentJumpMapUrl.value,
             dropzone = state.dropzone.value,
             date = System.currentTimeMillis()
         )
     }
 
+    /**
+     * Reads the most recent values for jump fields from the applications datastore and stores values in state
+     */
     private fun readRecentValues() {
         viewModelScope.launch {
-            launch {
-                datastore.readIntFromDatastore(
-                    key = PreferenceKeys.LAST_JUMP_NUMBER,
-                    defaultValue = 1
-                ) { it ->
-                    state.jumpNumber.value = it
-                }
-            }
-            launch {
-                datastore.readStringFromDatastore(
-                    key = PreferenceKeys.LAST_AIRCRAFT,
-                    defaultValue = "C208B"
-                ) {
-                    state.aircraft.value = it
-                }
-            }
-            launch {
-                datastore.readStringFromDatastore(
-                    key = PreferenceKeys.LAST_EQUIPMENT,
-                    defaultValue = "Sabre 2"
-                ) { it ->
-                    state.equipment.value = it
-                }
-            }
-            launch {
-                datastore.readStringFromDatastore(
-                    key = PreferenceKeys.LAST_DROPZONE,
-                    defaultValue = "LANGAR"
-                ) { it ->
-                    Timber.d("Dropzone" + it)
-                    try {
-                        state.dropzone.value = enumValueOf(it)
-                    } catch (e : Exception){
-                        state.dropzone.value = Dropzone.LANGAR
-                    }
-
-                }
-            }
+            datastore.getDatastore().data.map { preferences ->
+                state.dropzone.value = enumValueOf<Dropzone>(
+                    preferences[PreferenceKeys.LAST_DROPZONE]
+                        ?: "LANGAR"
+                )
+                state.aircraft.value = preferences[PreferenceKeys.LAST_AIRCRAFT]
+                    ?: ""
+                state.equipment.value = preferences[PreferenceKeys.LAST_EQUIPMENT]
+                    ?: ""
+                state.jumpNumber.value = preferences[PreferenceKeys.LAST_JUMP_NUMBER] ?: 0
+                state.currentJumpID.value = preferences[PreferenceKeys.CURRENT_JUMP_ID] ?: ""
+                state.currentJumpMapUrl.value = preferences[PreferenceKeys.CURRENT_JUMP_MAP_URL] ?: ""
+            }.collect()
         }
     }
 
+    /**
+     * Saves variables in state to datastore (so that they may be recalled automatically next time)
+     */
     private fun saveRecentValues() {
         viewModelScope.launch {
-            launch {
-                datastore.writeIntToDataStore(
-                    data = state.jumpNumber.value,
-                    key = PreferenceKeys.LAST_JUMP_NUMBER
-                )
-            }
-            launch {
-                datastore.writeStringToDatastore(
-                    data = state.aircraft.value,
-                    key = PreferenceKeys.LAST_AIRCRAFT,
-                )
-            }
-            launch {
-                datastore.writeStringToDatastore(
-                    data = state.equipment.value,
-                    key = PreferenceKeys.LAST_EQUIPMENT,
-                )
-            }
-            launch {
-                datastore.writeStringToDatastore(
-                    data = state.dropzone.value.name,
-                    key = PreferenceKeys.LAST_DROPZONE,
-                )
+            datastore.getDatastore().edit { preferences ->
+                preferences[PreferenceKeys.LAST_AIRCRAFT] = state.aircraft.value
+                preferences[PreferenceKeys.LAST_EQUIPMENT] = state.equipment.value
+                preferences[PreferenceKeys.LAST_DROPZONE] = state.dropzone.value.name
+                preferences[PreferenceKeys.LAST_JUMP_NUMBER] = state.jumpNumber.value
+                preferences[PreferenceKeys.CURRENT_JUMP_ID] = ""
+                preferences[PreferenceKeys.CURRENT_JUMP_MAP_URL] = ""
             }
         }
     }
 
-
-    fun queueJump(points: MutableList<JumpDatapoint>) {
+    /**
+     * Upon completion, the service is stopped and the jump is uploaded. The ID of the work is written to Datastore.
+     */
+    fun completeJump() {
         saveRecentValues()
         clientToService.stopTrackingService()
-
         viewModelScope.launch {
-            Timber.d("Uploading")
-            val uploadJumpWork = writeServer.uploadJumpWithDatapoints(
-                jumpWithDatapoints = JumpWithDatapoints(
-                    createJump(points = points),
-                    points
-                ),
-                context,
-                signature = state.signatureBitmap.value
-            )
-            datastore.writeStringToDatastore(
-                PreferenceKeys.UPLOAD_JUMP_WORK,
-                uploadJumpWork.toString()
-            )
-        }
+            datastore.getDatastore().edit { preferences ->
+                preferences[PreferenceKeys.UPLOAD_JUMP_WORK] = uploadJump()
 
+            }
+//            datastore.writeStringToDatastore(
+//                PreferenceKeys.UPLOAD_JUMP_WORK,
+//                uploadJump()
+//            )
+        }
     }
+
+    /**
+     * Calls upon the storage interface to upload the jump file and metadata
+     */
+    private fun uploadJump() : String{
+        return storage.uploadJumpFile(createJump(), state.signatureBitmap.value).toString()
+    }
+
 }

@@ -26,6 +26,11 @@ import com.skyblu.userinterface.viewmodels.TrackingScreenViewModel
 import com.skyblu.userinterface.viewmodels.TrackingStatus
 import kotlin.math.roundToInt
 
+/**
+ * A screen that allows the user to track a skydive
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable
 fun TrackingScreen(
     navController: NavController,
@@ -117,7 +122,7 @@ fun TrackingScreen(
             )
         },
         content = {
-            TrackingContent(viewModel.state.trackingPoints.value.lastOrNull())
+            TrackingContent(viewModel.state.trackingPoints.value.firstOrNull(), viewModel.state.trackingPoints.value.lastOrNull())
         }
     )
 }
@@ -125,6 +130,7 @@ fun TrackingScreen(
 @Preview
 @Composable
 fun TrackingContent(
+    firstDatapoint: JumpDatapoint? = null,
     lastDatapoint: JumpDatapoint? = null
 ) {
     val typography = MaterialTheme.typography
@@ -134,9 +140,9 @@ fun TrackingContent(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (lastDatapoint != null) {
+            if (lastDatapoint != null || firstDatapoint != null) {
                 Text(
-                    text = lastDatapoint.altitude.metersToFeet().roundToInt().toString() + " ft",
+                    text = (lastDatapoint!!.altitude.metersToFeet().roundToInt() - firstDatapoint!!.altitude.metersToFeet().roundToInt()) .toString() + " ft",
                     fontWeight = FontWeight.Bold,
                     style = typography.h1
                 )

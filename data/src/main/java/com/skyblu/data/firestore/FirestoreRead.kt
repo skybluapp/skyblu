@@ -1,20 +1,25 @@
 package com.skyblu.data.firestore
 
-import com.google.firebase.firestore.*
-import com.skyblu.configuration.DATAPOINTS_COLLECTION
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
 import com.skyblu.configuration.JUMPS_COLLECTION
 import com.skyblu.configuration.TIMEOUT_MILLIS
 import com.skyblu.configuration.USERS_COLLECTION
 import com.skyblu.models.jump.JumpParams
 import com.skyblu.models.jump.UserParameterNames
 import kotlinx.coroutines.delay
-import timber.log.Timber
 
+/**
+ * Reads data from firebase firestore database
+ * @property firestore The instance of Firestore database
+ */
 class FireStoreRead : ReadServerInterface {
 
     val firestore = FirebaseFirestore.getInstance()
     private val jumpCollection = firestore.collection(JUMPS_COLLECTION)
-    val usersCollection = firestore.collection(USERS_COLLECTION)
+    private val usersCollection = firestore.collection(USERS_COLLECTION)
 
     /**
      * Gets a list of jumps from server limited to pagesize
@@ -30,11 +35,12 @@ class FireStoreRead : ReadServerInterface {
         var result: Result<QuerySnapshot>? = null
         val startTime = System.currentTimeMillis()
 
-
-
         val firestoreReference = if (page == null) {
             if (fromUsers.isNullOrEmpty()) {
-                firestore.collection(JUMPS_COLLECTION).whereEqualTo(JumpParams.JUMP_ID, "123")
+                firestore.collection(JUMPS_COLLECTION).whereEqualTo(
+                    JumpParams.JUMP_ID,
+                    "123"
+                )
             } else {
                 firestore.collection(JUMPS_COLLECTION)
                     .whereIn(
@@ -69,15 +75,15 @@ class FireStoreRead : ReadServerInterface {
         }
 
 
-            firestoreReference
-                .limit(pageSize.toLong())
-                .get()
-                .addOnSuccessListener { jumpDocuments ->
-                    result = Result.success(jumpDocuments)
-                }
-                .addOnFailureListener {
-                    result = Result.failure(it)
-                }
+        firestoreReference
+            .limit(pageSize.toLong())
+            .get()
+            .addOnSuccessListener { jumpDocuments ->
+                result = Result.success(jumpDocuments)
+            }
+            .addOnFailureListener {
+                result = Result.failure(it)
+            }
 
 
         while (result == null) {
@@ -141,15 +147,15 @@ class FireStoreRead : ReadServerInterface {
 
     /**
      * Returns a single jump from firestore
-     * @param id The jumpID of the jump to return
+     * @param jumpID The jumpID of the jump to return
      */
-    override suspend fun getJump(id: String): Result<DocumentSnapshot?> {
+    override suspend fun getJump(jumpID: String): Result<DocumentSnapshot?> {
 
         val firestore = FirebaseFirestore.getInstance()
         var result: Result<DocumentSnapshot?>? = null
         val startTime = System.currentTimeMillis()
 
-        firestore.collection(JUMPS_COLLECTION).document(id).get()
+        firestore.collection(JUMPS_COLLECTION).document(jumpID).get()
             .addOnSuccessListener { document ->
                 result = Result.success(document)
                 if (document.exists()) {
@@ -169,36 +175,6 @@ class FireStoreRead : ReadServerInterface {
             delay(100)
         }
         return result as Result<DocumentSnapshot>
-    }
-
-    /**
-     * Returns all datapoints from a jump
-     * @param jumpID ID of the jump to return the datapoints of
-     */
-    override suspend fun getDatapoints(
-        jumpID: String
-    ): Result<QuerySnapshot> {
-
-        var result: Result<QuerySnapshot>? = null
-        val startTime = System.currentTimeMillis()
-        val documentReference =
-            firestore.collection(JUMPS_COLLECTION).document(jumpID)
-                .collection(DATAPOINTS_COLLECTION).get()
-        documentReference
-            .addOnSuccessListener { datapointDocuments ->
-                result = Result.success(datapointDocuments)
-            }
-            .addOnFailureListener {
-                result = Result.failure(it)
-            }
-
-        while (result == null) {
-            if (timeout(startTime)) {
-                return Result.failure(Exception())
-            }
-            delay(1000)
-        }
-        return result as Result<QuerySnapshot>
     }
 
     /**
@@ -234,26 +210,6 @@ class FireStoreRead : ReadServerInterface {
     }
 
 }
-interface ReadServerInterface {
-
-    suspend fun getJumps(
-        page: DocumentSnapshot?,
-        pageSize: Int,
-        fromUsers: List<String>? = null
-    ): Result<QuerySnapshot>
-    suspend fun getUsers(
-        page: DocumentSnapshot?,
-        pageSize: Int,
-        search : String
-    ): Result<QuerySnapshot>
-
-    suspend fun getJump(jumpID: String): Result<DocumentSnapshot?>
-    suspend fun getDatapoints(jumpID: String): Result<QuerySnapshot>
-    suspend fun getUser(id: String): Result<DocumentSnapshot?>
-
-}
-
-
 
 fun timeout(startTime: Long): Boolean {
     return System.currentTimeMillis() - TIMEOUT_MILLIS > startTime

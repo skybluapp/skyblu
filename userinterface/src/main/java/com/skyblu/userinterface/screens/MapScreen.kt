@@ -22,11 +22,18 @@ import com.skyblu.userinterface.componants.*
 import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.componants.data.AppDataPoint
 import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.maps.JumpMap
 import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.MapViewModel
 import com.skyblu.userinterface.viewmodels.MapViewModelState
 import java.util.*
 
+
+/**
+ * A screen that allows the user to view data for a skydive
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @OptIn(
     ExperimentalMaterialApi::class,
     androidx.compose.foundation.ExperimentalFoundationApi::class
@@ -35,17 +42,18 @@ import java.util.*
 fun MapScreen(
     navController: NavController,
     jumpID: String,
+    userID: String,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
     val p = MaterialTheme.typography.body1
     val state = viewModel.state
 
-    viewModel.setJump(jumpID)
+    viewModel.downloadJump("$jumpID", userID = userID)
 
         BottomSheetScaffold(
             topBar = {
                 AppTopAppBar(
-                    title = if (state.skydive.value?.jumpID.isNullOrBlank()) "" else state.skydive.value!!.title,
+                    title = if (state.jump.value?.jumpID.isNullOrBlank()) "" else state.jump.value!!.title,
                     navigationIcon = {
                         ActionConceptList(
                             menuActions = listOf(
@@ -63,12 +71,12 @@ fun MapScreen(
                         )
                     },
                     actionIcons = {
-                        if (state.skydive.value?.userID == state.currentUser.value) {
+                        if (state.jump.value?.userID == state.currentUser.value) {
                             ActionConceptList(
                                 menuActions = listOf(
                                     ActionConcept(
                                         action = {
-                                            viewModel.savedSkydive.skydive = state.skydive.value
+                                            viewModel.savedSkydives.skydive = state.jump.value
                                             navController.navigate(Concept.Edit.route)
                                         },
                                         concept = Concept.Edit
@@ -100,7 +108,7 @@ fun MapScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
-                            skydiveContent(skydive = state.skydive.value)
+                            skydiveContent(skydive = state.jump.value)
                             Spacer(modifier = Modifier.height(MEDIUM_PADDING))
                         }
 

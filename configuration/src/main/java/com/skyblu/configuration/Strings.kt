@@ -1,7 +1,11 @@
 package com.skyblu.configuration
 
 import android.Manifest
+import android.util.Log
 
+/**
+ * Strings used throughout the application
+ */
 
 const val APP_NAME_STRING = "Skyblu"
 const val ID_STRING = "ID"
@@ -46,21 +50,16 @@ const val TRACKING_SETTINGS_STRING = "Tracking Settings"
 const val PROFILE_STRING = "Profile"
 const val HOME_STRING = "Home"
 const val VERTICAL_DISTANCE_TRAVELLED_STRING = "Vertical Distance Travelled"
-const val GROUND_DISTANCE_TRAVELLED_STRING = "ground Distance Travelled"
+const val GROUND_DISTANCE_TRAVELLED_STRING = "Ground Distance Travelled"
 const val LOADING_STRING = "Loading"
 const val PERMISSIONS = Manifest.permission.ACCESS_FINE_LOCATION
 const val JUMPS_COLLECTION = "skydives"
 const val USERS_COLLECTION = "users"
 const val DATAPOINTS_COLLECTION = "datapoints"
 const val JUMP_NUMBER_STRING = "Jump Number"
-val JUMP_NUMBER_RANGE = 1..10000
 const val LICENCE_STRING = "Licence"
 const val TOTAL_JUMPS_STRING = "Jumps"
-const val ALTITUDE_THRESHOLD_STRING = "Altitude Threshold"
-const val GROUNDSPEED_THRESHOLD_STRING = "Groundspeed Threshold"
-const val VERTICAL_SPEED_THRESHOLD_STRING = "Vertical Speed Threshold"
-const val LOCATION_THRESHOLD_INT = 0.1
-const val ALTITUDE_THRESHOLD_INT = 0.1
+
 
 
 

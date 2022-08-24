@@ -75,6 +75,12 @@ sealed class Concept(
         route = "map"
     )
 
+    object Download : Concept(
+        title = "Download Logbook",
+        icon = R.drawable.download,
+        route = "download_logbook"
+    )
+
     object Account : Concept(
         title = "Account",
         icon = R.drawable.person,

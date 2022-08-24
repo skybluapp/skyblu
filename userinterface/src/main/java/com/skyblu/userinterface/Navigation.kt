@@ -82,14 +82,13 @@ fun Navigation(
                 )
             }
 
-            composable(route = "${Concept.Map.route}/{${JumpParams.JUMP_ID}}") { backStackEntry ->
-                backStackEntry.arguments?.getString(JumpParams.JUMP_ID)
-                    ?.let { jumpID ->
-                        MapScreen(
-                            navController = navHostController,
-                            jumpID = jumpID
-                        )
-                    }
+            composable(route = "${Concept.Map.route}/{${JumpParams.USER_ID}}/{${JumpParams.JUMP_ID}}") { backStackEntry ->
+                MapScreen(
+                    navController = navHostController,
+                    jumpID = backStackEntry.arguments?.getString(JumpParams.JUMP_ID)!!,
+                    userID = backStackEntry.arguments?.getString(JumpParams.USER_ID)!!
+                )
+
             }
 
             composable("${Concept.Profile.route}{${UserParameterNames.ID}}") { backStackEntry ->
@@ -109,7 +108,7 @@ fun Navigation(
             }
 
             composable(route = Concept.Search.route) {
-                Searchscreen(navController = navHostController, appViewModel = appViewModel)
+                SearchScreen(navController = navHostController, appViewModel = appViewModel)
             }
 
 
@@ -134,12 +133,7 @@ fun Navigation(
             startDestination = Concept.Settings.route + Concept.Home.route
         ) {
             composable(Concept.Settings.route + Concept.Home.route) { SettingsScreen(navController = navHostController, viewModel = settingsViewModel, appViewModel = appViewModel) }
-            composable(route = Concept.LocationTracking.route + Concept.Settings.route) { TrackingSettingsScreen(navController = navHostController) }
             composable(Concept.Account.route + Concept.Settings.route) { AccountSettingsScreen(navController = navHostController, appViewModel = appViewModel) }
-            composable(route = Concept.AircraftDetection.route + Concept.Settings.route) { AircraftDetectionScreen(navController = navHostController) }
-            composable(route = Concept.FreefallDetection.route + Concept.Settings.route) { FreefallDetectionScreen(navController = navHostController) }
-            composable(route = Concept.CanopyDetection.route + Concept.Settings.route) { CanopyDetectionScreen(navController = navHostController) }
-            composable(route = Concept.LandingDetection.route + Concept.Settings.route) { LandingDetectionScreen(navController = navHostController) }
         }
 
     }

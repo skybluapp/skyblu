@@ -19,15 +19,22 @@ import com.skyblu.models.jump.Jump
 import com.skyblu.models.jump.User
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.*
-import com.skyblu.userinterface.componants.data.ProfileHeader
+
 import com.skyblu.userinterface.componants.input.ActionConceptList
 import com.skyblu.userinterface.componants.lists.PagingList
 import com.skyblu.userinterface.componants.scaffold.AppBottomAppBar
 import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
+import com.skyblu.userinterface.componants.users.ProfileHeader
 import com.skyblu.userinterface.viewmodels.ProfileViewModel
 import com.skyblu.userinterface.viewmodels.AppViewModel
 import timber.log.Timber
 
+
+/**
+ * A screen that allows the user to view a users profile
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable()
 fun ProfileScreen(
     navController: NavController,
@@ -45,7 +52,6 @@ fun ProfileScreen(
     LaunchedEffect(
         key1 = true,
         block = {
-            Timber.d("Profile$userID")
             viewModel.setUser(userID)
         }
     )
@@ -113,7 +119,7 @@ fun ProfileScreen(
                     val user = appViewModel.savedUsers.userMap[userID]
                     JumpCard(
                         skydive = skydive,
-                        onMapClick = { navController.navigate(Concept.Map.route + "/" + skydive.jumpID) },
+                        onMapClick = { navController.navigate(Concept.Map.route + "/" + skydive.userID + "/" + skydive.jumpID) },
                         username = appViewModel.savedUsers.userMap[userID]?.username
                             ?: "unknown",
                         user = savedUsers[userID] ?: User(""),
@@ -137,10 +143,10 @@ fun ProfileScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    if (viewModel.checkPermissions(activity)) {
+                    if (viewModel.permissions.checkPermissions()) {
                         navController.navigate(Concept.TrackSkydive.route)
                     } else {
-                        viewModel.requestPermissions(activity)
+                        viewModel.permissions.requestPermissions(activity)
                     }
                 },
                 content = {

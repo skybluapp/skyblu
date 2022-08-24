@@ -1,28 +1,16 @@
 package com.skyblu.userinterface.viewmodels
 
-import android.content.Context
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import com.skyblu.configuration.success
-import com.skyblu.data.authentication.AuthenticationInterface
-import com.skyblu.data.datastore.DatastoreInterface
-import com.skyblu.data.datastore.PreferenceKeys
-import com.skyblu.data.firestore.ReadServerInterface
-import com.skyblu.data.firestore.WriteServerInterface
+import com.skyblu.configuration.PreferenceKeys
+import com.skyblu.data.Repository
 import com.skyblu.data.firestore.toUser
-import com.skyblu.data.users.SavedUsersInterface
 import com.skyblu.models.jump.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -47,42 +35,30 @@ enum class Alert {
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val authentication: AuthenticationInterface,
-    val datastore: DatastoreInterface,
-    val savedUsers: SavedUsersInterface,
-    val readServer: ReadServerInterface,
-    val writeServer: WriteServerInterface,
-    val appContext: Context
+    repository: Repository
 ) : ViewModel() {
 
-    val state by mutableStateOf(UniversalState())
-    val workManager = WorkManager.getInstance(appContext)
+    //Data Sources
+    private val workManager = repository.workManager.getWorkManager()
+    private val datastore = repository.datastoreInterface
+    private val authentication = repository.authenticationInterface
+    val savedUsers = repository.savedUsersInterface
+    private val readServer = repository.readServerInterface
 
-    val workFlow: Flow<String?> = flow<String?> {
+    //App State
+    val state by mutableStateOf(UniversalState())
+
+    private suspend fun workLoop(){
         while (true) {
-            viewModelScope.launch {
-                this.launch {
-                    datastore.readStringFromDatastore(PreferenceKeys.UPDATE_USER_WORK) {
-                        state.updateWorkUUID.value = it
-                    }
-                }
-                this.launch {
-                    datastore.readStringFromDatastore(PreferenceKeys.UPDATE_JUMP_WORK) {
-                        state.updateJumpUUID.value = it
-                    }
-                }
-                this.launch {
-                    datastore.readStringFromDatastore(PreferenceKeys.DELETE_JUMP_WORK) {
-                        state.deleteJumpUUID.value = it
-                    }
-                }
-                this.launch {
-                    datastore.readStringFromDatastore(PreferenceKeys.UPLOAD_JUMP_WORK) {
-                        state.uploadJumpUUID.value = it
-                    }
-                }
-            }
-            delay(1000)
+
+                datastore.getDatastore().data.map { preferences ->
+                    state.updateWorkUUID.value = preferences[PreferenceKeys.UPDATE_USER_WORK]
+                    state.updateJumpUUID.value = preferences[PreferenceKeys.UPDATE_JUMP_WORK]
+                    state.deleteJumpUUID.value = preferences[PreferenceKeys.DELETE_JUMP_WORK]
+                    state.uploadJumpUUID.value = preferences[PreferenceKeys.UPLOAD_JUMP_WORK]
+                }.collect()
+
+            delay(2000)
         }
     }
 
@@ -99,17 +75,11 @@ class AppViewModel @Inject constructor(
 
     init {
 
-
-        viewModelScope.launch {
-            workFlow.collectLatest {
-                state.updateWorkUUID.value = it
-            }
-        }
-
+        viewModelScope.launch { workLoop() }
 
 
         viewModelScope.launch {
-            authentication.loggedInFlow.collectLatest { user ->
+            authentication.signedInStatus.collectLatest { user ->
                 state.thisUser.value = user
                 if (user != null && !savedUsers.containsUser(user)) {
                     val result = readServer.getUser(user)
@@ -139,32 +109,34 @@ class AppViewModel @Inject constructor(
     }
 
     private fun observeWork(workName : String, successMessage : String, failedMessage : String, enqueuedMessage : String, UUID : MutableState<String?> ){
-
+        Timber.d("Observing $workName")
         workManager.getWorkInfosForUniqueWorkLiveData(workName)
             .observeForever() { workInfos ->
-                val updeteUserWork =
-                    workInfos.find { it.id.toString() == UUID.value.toString() }
-                if (updeteUserWork != null) {
-                    when (updeteUserWork.state) {
+                Timber.d("Observing Forever $workName")
+                val work = workInfos.find { it.id.toString() == UUID.value.toString() }
+                if (work != null) {
+                    when (work.state) {
                         WorkInfo.State.SUCCEEDED -> {
+                            Timber.d("$workName Success!")
                             state.message.value = successMessage
-
                             state.messageImportance.value = Alert.SUCCESS
                             viewModelScope.launch {
-                                savedUsers.getThisUser()
                                 delay(2000)
                                 state.message.value = ""
                             }
                         }
                         WorkInfo.State.FAILED -> {
+                            Timber.d("$workName Failed!")
                             state.message.value = failedMessage
                             state.messageImportance.value = Alert.ERROR
                         }
                         WorkInfo.State.ENQUEUED -> {
+                            Timber.d("$workName Queued!")
                             state.message.value = enqueuedMessage
                             state.messageImportance.value = Alert.WARNING
                         }
                         else -> {
+                            Timber.d("$workName ${work.state.name}!")
                             state.message.value = ""
                         }
                     }

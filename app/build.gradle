@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
+    id 'org.jetbrains.dokka'
 }
 
 android {
@@ -123,7 +124,8 @@ dependencies {
     implementation(project(":configuration"))
     implementation(project(":data"))
     implementation(project(":trackingservice"))
-    implementation(project(":messagingService"))
+    //implementation(project(":messagingService"))
+    implementation(project(':dependancyInjection'))
 
 
 

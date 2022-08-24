@@ -10,9 +10,24 @@ import androidx.compose.ui.text.font.FontWeight
 import com.skyblu.userinterface.componants.input.AppTextButton
 import com.skyblu.userinterface.componants.input.errorButtonColors
 
+/**
+ * A dialog box that can be confirmed or dismissed
+ * @param show True if the dialog is being displayed
+ * @param dismiss An action to take if the dialog is dismissed
+ * @param title The text to display in the dialog box
+ * @param confirm An action to take if the dialog is confirmed
+ * @param buttonText Text to be displayed in the confirm button
+ */
 @Composable
-fun AppDialog(show : Boolean, dismiss : () -> Unit, title : String, text : String, confirm : () -> Unit, buttonText : String) {
-    if(show)
+fun AppDialog(
+    show: Boolean,
+    dismiss: () -> Unit,
+    title: String,
+    text: String,
+    confirm: () -> Unit,
+    buttonText: String
+) {
+    if (show)
         AlertDialog(
             onDismissRequest = {
                 dismiss()
@@ -28,7 +43,7 @@ fun AppDialog(show : Boolean, dismiss : () -> Unit, title : String, text : Strin
             },
             confirmButton = {
                 AppTextButton(
-                    onClick = {confirm()},
+                    onClick = { confirm() },
                     text = buttonText,
                     colors = errorButtonColors()
                 )

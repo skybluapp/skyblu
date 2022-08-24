@@ -9,6 +9,10 @@ import androidx.navigation.NavController
 import com.skyblu.configuration.Concept
 import com.skyblu.userinterface.componants.ActionConcept
 
+/**
+ * A composable icon with an action that is taken when clicked
+ * @param menuActions A list of ActionConcepts to generate composable icons with assigned actions
+ */
 @Composable
 fun ActionConceptList(
     menuActions: List<ActionConcept>,
@@ -24,6 +28,11 @@ fun ActionConceptList(
     }
 }
 
+/**
+ * A composable icon that navigates to a route when clicked
+ * @param appConcepts A list of concepts that can be navigated to
+ * @param navController The controller used to navigate to the concepts route
+ */
 @Composable
 fun ActionConceptList(
     appConcepts: List<Concept>,

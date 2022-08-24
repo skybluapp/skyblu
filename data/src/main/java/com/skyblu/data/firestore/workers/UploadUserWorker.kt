@@ -22,8 +22,10 @@ class UploadUserWorker(
     workerParameters
 ) {
 
+    /**
+     * Work to upload user data
+     */
     override suspend fun doWork(): Result {
-
         val firestore = FirebaseFirestore.getInstance()
         val userString = inputData.getString(UserParameterNames.USER) ?: return Result.failure()
         val user: User = Json.decodeFromString<User>(userString)

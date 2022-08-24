@@ -18,13 +18,13 @@ import timber.log.Timber
 import javax.inject.Inject
 
 /**
- * Singleton that manages the flow of data between the service and activity the
+ * Singleton that manages the flow of data between the service and the activity
  */
 class SkybluAppService @Inject constructor(
     private val context: Context,
 ) : ClientToService {
 
-    lateinit var trackingService: JumpTrackingService
+    lateinit var trackingService: SimpleTrackingService
     var isTrackingServiceBound: Boolean = false
     private var onRecieveTrackingPoint: (JumpDatapoint) -> Unit = {}
 
@@ -62,7 +62,7 @@ class SkybluAppService @Inject constructor(
             name: ComponentName?,
             service: IBinder?
         ) {
-            val binder = service as JumpTrackingService.TrackingServiceBinder
+            val binder = service as SimpleTrackingService.TrackingServiceBinder
             binder.provideCallbacks(Callbacks())
             isTrackingServiceBound = true
 
@@ -76,7 +76,7 @@ class SkybluAppService @Inject constructor(
     override fun setRefreshRate(refreshRate: Int) {
         if (isTrackingServiceBound) {
 
-            trackingService.setRefreshRate(refreshRate = refreshRate.toLong())
+            //trackingService.setRefreshRate(refreshRate = refreshRate.toLong())
         }
     }
     override fun getGroundAltitude(): Float? {
@@ -98,7 +98,7 @@ class SkybluAppService @Inject constructor(
 
                 Intent(
                     context,
-                    JumpTrackingService::class.java
+                    SimpleTrackingService::class.java
                 )
                     .also { intent ->
                     startForegroundService(

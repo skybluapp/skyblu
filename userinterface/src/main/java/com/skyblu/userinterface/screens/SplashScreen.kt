@@ -19,6 +19,11 @@ import com.skyblu.userinterface.ui.theme.ThemeBlueGradient
 import kotlinx.coroutines.delay
 import timber.log.Timber
 
+/**
+ * A splash screen to display when the app is loading
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable
 fun SplashScreen(navController : NavController){
 
@@ -37,7 +42,7 @@ fun SplashScreen(navController : NavController){
         contentAlignment = Alignment.Center
     ){
         Image(
-            painter = painterResource(id = com.skyblu.models.R.drawable.freefall),
+            painter = painterResource(id = com.skyblu.models.R.drawable.app_icon_no_background),
             contentDescription = "",
             alignment = Alignment.Center,
             modifier = Modifier.size(200.dp),

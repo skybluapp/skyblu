@@ -14,15 +14,21 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.skyblu.configuration.Concept
 
+/**
+ * A composable configurable Bottom bar for screens of the app
+ * @param navController controller for navigation
+ * @param userID a user ID to navigate to on profile click
+ * @param bottomNavIcons Concepts to navigate to on click
+ */
 @Composable
 fun AppBottomAppBar(
     navController: NavController,
-    userID : String
-) {
-    val bottomNavIcons = listOf<Concept>(
+    userID : String,
+    bottomNavIcons : List<Concept> = listOf<Concept>(
         Concept.Home,
         Concept.Profile
     )
+) {
     BottomAppBar(
         cutoutShape = RoundedCornerShape(50),
         backgroundColor = MaterialTheme.colors.background,

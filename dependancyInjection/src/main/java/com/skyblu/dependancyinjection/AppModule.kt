@@ -1,25 +1,28 @@
 package com.skyblu.dependancyinjection
 
-import android.app.Activity
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.room.Room
 import com.skyblu.data.Repository
 import com.skyblu.data.authentication.AuthenticationInterface
 import com.skyblu.data.authentication.FirebaseAuthentication
-import com.skyblu.data.datastore.DataStoreRepository
+import com.skyblu.data.datastore.Datastore
 import com.skyblu.data.datastore.DatastoreInterface
 import com.skyblu.data.firestore.FireStoreRead
 import com.skyblu.data.firestore.FirestoreWrite
 import com.skyblu.data.firestore.ReadServerInterface
 import com.skyblu.data.firestore.WriteServerInterface
+import com.skyblu.data.memory.SavedSkydive
+import com.skyblu.data.memory.SavedSkydiveInterface
+import com.skyblu.data.permissions.EasyPermissions
+import com.skyblu.data.permissions.PermissionsInterface
 import com.skyblu.data.storage.FirebaseStorage
 import com.skyblu.data.storage.StorageInterface
-import com.skyblu.data.users.SavedSkydives
-import com.skyblu.data.users.SavedSkydivesInterface
-import com.skyblu.data.users.SavedUsers
-import com.skyblu.data.users.SavedUsersInterface
+
+import com.skyblu.data.memory.SavedUsers
+import com.skyblu.data.memory.SavedUsersInterface
+import com.skyblu.data.workManager.AndroidWorkManager
+import com.skyblu.data.workManager.WorkManagerInterface
 import com.skyblu.jumptracker.service.ClientToService
 import com.skyblu.jumptracker.service.SkybluAppService
 import dagger.Binds
@@ -27,13 +30,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
-import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Singleton
 
 val Context.dataStore by preferencesDataStore("")
 
+/**
+ * Dependancy Injection module for Android version of Skyblu
+ * Provides instances of interfaces used throughout the app to provide data to viewmodels
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -69,9 +74,11 @@ object AppModule {
         datastoreInterface: DatastoreInterface,
         readServerInterface: ReadServerInterface,
         savedUsersInterface: SavedUsersInterface,
-        savedSkydives: SavedSkydivesInterface,
+        savedSkydives: SavedSkydiveInterface,
         storageInterface: StorageInterface,
-        writeServerInterface: WriteServerInterface
+        writeServerInterface: WriteServerInterface,
+        permissionsInterface: PermissionsInterface,
+        workManagerInterface: WorkManagerInterface
     ): Repository {
         return Repository(
             authenticationInterface = authentication,
@@ -80,27 +87,12 @@ object AppModule {
             savedSkydivesInterface = savedSkydives,
             savedUsersInterface = savedUsersInterface,
             storageInterface = storageInterface,
-            writeServerInterface = writeServerInterface
+            writeServerInterface = writeServerInterface,
+            permissionsInterface = permissionsInterface,
+            workManager = workManagerInterface
         )
     }
 
-//    @Singleton
-//    @Provides
-//    fun provideUserDao(database: AppDatabase): TrackingPointsDao {
-//        return database.trackingPointsDao()
-//    }
-
-//    @Singleton
-//    @Provides
-//    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-//        return Room.databaseBuilder(
-//            context,
-//            AppDatabase::class.java,
-//            "DATABASE",
-//        )
-//            .fallbackToDestructiveMigration()
-//            .build()
-//    }
 
     @Singleton
     @Provides
@@ -108,10 +100,17 @@ object AppModule {
         return FirebaseAuthentication()
     }
 
+
     @Singleton
     @Provides
-    fun provideFirestoreWrite(): FirestoreWrite {
-        return FirestoreWrite()
+    fun provideFirestoreWrite(context : Context): FirestoreWrite {
+        return FirestoreWrite(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(context : Context): AndroidWorkManager {
+        return AndroidWorkManager(context)
     }
 
     @Singleton
@@ -122,8 +121,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideStorage(): FirebaseStorage {
-        return FirebaseStorage()
+    fun provideStorage(context: Context): FirebaseStorage {
+        return FirebaseStorage(context)
     }
 
     @Singleton
@@ -134,18 +133,27 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideSavedSkydive(): SavedSkydives {
-        return SavedSkydives()
+    fun provideSavedSkydive(): SavedSkydive {
+        return SavedSkydive()
+    }
+
+    @Singleton
+    @Provides
+    fun providePermissions(context: Context): EasyPermissions {
+        return EasyPermissions(context)
     }
 }
 
+/**
+ * Binds interfaces to specific implementations
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppBindings {
 
     @Singleton
     @Binds
-    abstract fun bindingFunction(dataStoreRepository: DataStoreRepository): DatastoreInterface
+    abstract fun bindingFunction(dataStoreRepository: Datastore): DatastoreInterface
 
     @Singleton
     @Binds
@@ -154,6 +162,14 @@ abstract class AppBindings {
     @Singleton
     @Binds
     abstract fun writeServerInterface(fireStore: FirestoreWrite): WriteServerInterface
+
+    @Singleton
+    @Binds
+    abstract fun workManagerInterface(workManager: AndroidWorkManager): WorkManagerInterface
+//
+//    @Singleton
+//    @Binds
+//    abstract fun localJumpInterface(localJumpText: LocalJumpText): LocalJumpTextInterface
 
     @Singleton
     @Binds
@@ -173,36 +189,10 @@ abstract class AppBindings {
 
     @Singleton
     @Binds
-    abstract fun savedSkydive(savedSkydives: SavedSkydives): SavedSkydivesInterface
+    abstract fun savedSkydive(savedSkydives: SavedSkydive): SavedSkydiveInterface
+
+    @Singleton
+    @Binds
+    abstract fun permissions(permissions: EasyPermissions): PermissionsInterface
 
 }
-
-@ActivityScoped
-interface PermissionsInterface {
-
-    fun requestPermission(vararg permissions: String)
-    fun checkPermissions(vararg permissions: String): Boolean
-}
-
-@ActivityScoped
-class PermissionsInterfaceImpl(private val activity: Activity) : PermissionsInterface {
-
-    override fun requestPermission(vararg permissions: String) {
-        EasyPermissions.requestPermissions(
-            pub.devrel.easypermissions.PermissionRequest.Builder(
-                activity,
-                1,
-                *permissions
-            )
-                .build(),
-        )
-    }
-
-    override fun checkPermissions(vararg permissions: String): Boolean {
-        return EasyPermissions.hasPermissions(
-            activity,
-            *permissions
-        )
-    }
-}
-

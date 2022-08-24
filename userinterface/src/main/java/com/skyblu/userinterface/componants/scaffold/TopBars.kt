@@ -12,6 +12,13 @@ import com.skyblu.configuration.Concept
 import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.componants.input.ActionConceptList
 
+/**
+ * A composable configurable Top bar for screens of the app
+ * @param title A string to display in the top bar
+ * @param color The color of the Top bar
+ * @param navigationIcon A composable icon to display on the left side of the app bar
+ * @param actionIcons Composable icons to display on the right of the top bar
+ */
 @Composable
 fun AppTopAppBar(
     title: String,

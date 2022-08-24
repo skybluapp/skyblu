@@ -1,5 +1,6 @@
 package com.skyblu.skyblu
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.skyblu.configuration.PERMISSIONS
 import com.skyblu.skyblu.ui.theme.SkybluTheme
 import com.skyblu.userinterface.Navigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,8 +25,6 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,3 +49,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+

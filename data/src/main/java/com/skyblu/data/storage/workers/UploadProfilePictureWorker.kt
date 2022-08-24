@@ -5,7 +5,9 @@ import android.net.Uri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.ktx.storageMetadata
 import com.skyblu.data.firebaseTasks.StorageTasks
 import com.skyblu.data.firestore.workers.timeoutTask
 import com.skyblu.models.jump.UserParameterNames
@@ -26,10 +28,16 @@ class UploadProfilePictureWorker(
         val location = firebaseStorage.child("profilePictures/$userID")
         val file = Uri.parse(photoUriString)
 
+        val metadata = storageMetadata {
+            contentType = "image/png"
+        }
+
+
         return timeoutTask(
             StorageTasks.uploadFile(
                 location = location,
-                file = file
+                file = file,
+                metadata = metadata
             )
         )
     }

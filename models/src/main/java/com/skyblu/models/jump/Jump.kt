@@ -3,34 +3,7 @@ package com.skyblu.models.jump
 import androidx.room.*
 import com.skyblu.configuration.Dropzone
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import java.util.*
-
-/**
- * Name of table for skydives for Room databases
- *@author Oliver Stocks
- */
-const val JUMP_TABLE = "skydive_table"
-
-/**
- * Contains default data for a skydive
- *@author Oliver Stocks
- */
-object SkydiveDefaults{
-    const val defaultTitle = "New Skydive"
-    const val defaultJumpNumber = 0
-    const val defaultStaticMapUrl = ""
-    const val defaultAircraft = "Unknown Aircraft"
-    const val defaultEquipment = "Unknown Equipment"
-    const val defaultDropzone = "Unknown Dropzone"
-    const val defaultDescription = ""
-    const val defaultUploaded = false
-    val currentDate = System.currentTimeMillis()
-    val newSkydiveID = UUID.randomUUID().toString()
-
-}
-
-private val s = SkydiveDefaults.defaultDropzone
 
 /**
  * Creates an instance of a Skydive data object
@@ -49,18 +22,43 @@ private val s = SkydiveDefaults.defaultDropzone
 @Entity(tableName = JUMP_TABLE)
 data class Jump(
     @PrimaryKey
-    var jumpID : String = SkydiveDefaults.newSkydiveID,
+    var jumpID : String = JumpDefaults.newSkydiveID,
     var userID : String,
-    var jumpNumber : Int = SkydiveDefaults.defaultJumpNumber,
-    var date : Long = SkydiveDefaults.currentDate,
-    var title : String = SkydiveDefaults.defaultTitle,
-    var aircraft : String = SkydiveDefaults.defaultAircraft,
-    var equipment : String = SkydiveDefaults.defaultEquipment,
+    var jumpNumber : Int = JumpDefaults.defaultJumpNumber,
+    var date : Long = JumpDefaults.currentDate,
+    var title : String = JumpDefaults.defaultTitle,
+    var aircraft : String = JumpDefaults.defaultAircraft,
+    var equipment : String = JumpDefaults.defaultEquipment,
     var dropzone : Dropzone = Dropzone.LANGAR,
-    var description : String = SkydiveDefaults.defaultDescription,
-    var staticMapUrl : String = SkydiveDefaults.defaultStaticMapUrl,
-    var uploaded : Boolean = SkydiveDefaults.defaultUploaded,
+    var description : String = JumpDefaults.defaultDescription,
+    var staticMapUrl : String = JumpDefaults.defaultStaticMapUrl,
+    var uploaded : Boolean = JumpDefaults.defaultUploaded,
 )
+
+/**
+ * Name of table for skydives for Room databases
+ *@author Oliver Stocks
+ */
+const val JUMP_TABLE = "skydive_table"
+
+/**
+ * Contains default data for a skydive
+ *@author Oliver Stocks
+ */
+object JumpDefaults{
+    const val defaultTitle = "New Skydive"
+    const val defaultJumpNumber = 0
+    const val defaultStaticMapUrl = ""
+    const val defaultAircraft = "Unknown Aircraft"
+    const val defaultEquipment = "Unknown Equipment"
+    const val defaultDropzone = "Unknown Dropzone"
+    const val defaultDescription = ""
+    const val defaultUploaded = false
+    val currentDate = System.currentTimeMillis()
+    val newSkydiveID = UUID.randomUUID().toString()
+
+}
+
 
 fun Jump.asSerializable() : SerializableJump{
     return SerializableJump(
@@ -76,18 +74,6 @@ fun Jump.asSerializable() : SerializableJump{
         uploaded = this.uploaded,
     )
 }
-
-/**
- * A One-to-Many relationship between datapoints and skydives
- */
-data class JumpWithDatapoints(
-    @Embedded val jump : Jump,
-    @Relation(
-        parentColumn = "jumpID",
-        entityColumn = "jumpID"
-    )
-    val datapoints: List<JumpDatapoint>
-)
 
 /**
  * Parameter names for a skydive
@@ -109,17 +95,17 @@ object JumpParams{
 
 @Serializable
 data class SerializableJump(
-    var jumpID : String = SkydiveDefaults.newSkydiveID,
+    var jumpID : String = JumpDefaults.newSkydiveID,
     var userID : String,
-    var jumpNumber : Int = SkydiveDefaults.defaultJumpNumber,
-    var date : Long = SkydiveDefaults.currentDate,
-    var title : String = SkydiveDefaults.defaultTitle,
-    var aircraft : String = SkydiveDefaults.defaultAircraft,
-    var equipment : String = SkydiveDefaults.defaultEquipment,
+    var jumpNumber : Int = JumpDefaults.defaultJumpNumber,
+    var date : Long = JumpDefaults.currentDate,
+    var title : String = JumpDefaults.defaultTitle,
+    var aircraft : String = JumpDefaults.defaultAircraft,
+    var equipment : String = JumpDefaults.defaultEquipment,
     var dropzone : String = "LANGAR",
-    var description : String = SkydiveDefaults.defaultDescription,
-    var staticMapUrl : String = SkydiveDefaults.defaultStaticMapUrl,
-    var uploaded : Boolean = SkydiveDefaults.defaultUploaded,
+    var description : String = JumpDefaults.defaultDescription,
+    var staticMapUrl : String = JumpDefaults.defaultStaticMapUrl,
+    var uploaded : Boolean = JumpDefaults.defaultUploaded,
 )
 
 fun SerializableJump.asJump() : Jump{

@@ -23,11 +23,14 @@ import com.skyblu.configuration.warning
 import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.viewmodels.Alert
 
-
-
-
+/**
+ * A composable for a banner that can be displayed at the top of a screen
+ * @param text The text to display in the banner
+ * @param actionConcept The
+ * @param importance importance of the banner
+ */
 @Composable
-fun StyledBanner(
+fun AppBanner(
     text: String,
     actionConcept: ActionConcept,
     importance : Alert
@@ -66,15 +69,3 @@ fun StyledBanner(
 
 }
 
-//@Composable
-//@Preview(showBackground = true)
-//fun AppBannerPreview() {
-//    StyledBanner(
-//        text = "This is a Banner",
-//        actionConcept = ActionConcept(
-//            action = {},
-//            concept = Concept.Close
-//        ),
-//        color = MaterialTheme.colors.background
-//    )
-//}

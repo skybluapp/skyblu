@@ -12,7 +12,7 @@ val SMALL_PADDING = 4.dp
 val MEDIUM_PADDING = 8.dp
 val LARGE_PADDING = 12.dp
 val XLARGE_PADDING = 16.dp
-val BANNER_FONTWEIGHT = FontWeight.Bold
+
 
 
 

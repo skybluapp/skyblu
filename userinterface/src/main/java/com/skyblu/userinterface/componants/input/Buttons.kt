@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +34,16 @@ fun buttonColors(): ButtonColors {
 }
 
 @Composable
+fun textButtonColors(): ButtonColors {
+    return ButtonDefaults.buttonColors(
+        backgroundColor = Color.Transparent,
+        contentColor = MaterialTheme.colors.error,
+        disabledBackgroundColor = MaterialTheme.colors.background,
+        disabledContentColor = MaterialTheme.colors.onBackground,
+    )
+}
+
+@Composable
 fun errorButtonColors(): ButtonColors {
     return ButtonDefaults.buttonColors(
         backgroundColor = MaterialTheme.colors.background,
@@ -43,17 +54,15 @@ fun errorButtonColors(): ButtonColors {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun AppButtonPreview() {
-    AppButton(
-        onClick = {},
-        text = "Button",
-        leadingIcon = R.drawable.blue_plane,
-        trailingIcon = R.drawable.blue_plane
-    )
-}
 
+/**
+ * A regular button
+ * @param onClick A function that is ran when clicked
+ * @param text A string to display in the button
+ * @param leadingIcon An icon to display before the text
+ * @param trailingIcon An icon to display after the text
+ * @param colors A set of colors for the button
+ */
 @Composable
 fun AppButton(
     onClick: () -> Unit,
@@ -87,11 +96,60 @@ fun AppButton(
     }
 }
 
+/**
+ * A button that spans the width of the screen
+ * @param onClick A function that is ran when clicked
+ * @param text A string to display in the button
+ * @param leadingIcon An icon to display before the text
+ * @param trailingIcon An icon to display after the text
+ * @param colors A set of colors for the button
+ */
 @Composable
-fun AppTextButton(
+fun AppSpanButton(
     onClick: () -> Unit,
     text: String = "",
+    leadingIcon: Int? = null,
+    trailingIcon: Int? = null,
     colors: ButtonColors = buttonColors()
+) {
+    Button(
+        onClick = { onClick() },
+        colors = colors,
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (leadingIcon != null) {
+                Icon(
+                    painter = painterResource(id = leadingIcon),
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = SMALL_PADDING)
+                )
+            }
+            Text(text = text)
+            if (trailingIcon != null) {
+                Icon(
+                    painter = painterResource(id = trailingIcon),
+                    contentDescription = null,
+                    modifier = Modifier.padding(start = SMALL_PADDING)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Text that can perform an action when clicked
+ * @param onClick A function that is ran when clicked
+ * @param text A string to display in the button
+ * @param colors A set of colors for the button
+ */
+@Preview
+@Composable
+fun AppTextButton(
+    onClick: () -> Unit = {},
+    text: String = "Click Here to perform action",
+    colors: ButtonColors = textButtonColors()
 ) {
     TextButton(
         onClick = { onClick() },
@@ -106,6 +164,12 @@ fun AppTextButton(
     }
 }
 
+/**
+ * Text that can perform an action when clicked
+ * @param onClick A function that is ran when clicked
+ * @param text A string to display in the button
+ * @param colors A set of colors for the button
+ */
 @Composable
 @Preview
 fun AppSettingsCategory(
@@ -130,11 +194,31 @@ fun AppSettingsCategory(
                 end = LARGE_PADDING
             )
         )
-
-
         Text(
             text = menuAction.concept.title,
         )
     }
+}
 
+
+@Preview(showBackground = true)
+@Composable
+fun AppSpanButtonPreview() {
+    AppButton(
+        onClick = {},
+        text = "Button",
+        leadingIcon = R.drawable.blue_plane,
+        trailingIcon = R.drawable.blue_plane
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AppButtonPreview() {
+    AppSpanButton(
+        onClick = {},
+        text = "Button",
+        leadingIcon = R.drawable.blue_plane,
+        trailingIcon = R.drawable.blue_plane
+    )
 }

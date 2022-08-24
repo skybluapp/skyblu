@@ -3,8 +3,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id 'dagger.hilt.android.plugin'
-    id 'com.google.gms.google-services'
+    //id 'com.google.gms.google-services'
     id 'kotlin-kapt'
+    id 'org.jetbrains.dokka'
 }
 
 android {
@@ -47,6 +48,28 @@ android {
     }
 }
 
+dokkaHtml {
+    moduleName = "${project.name}"
+
+    dokkaSourceSets {
+        configureEach {
+            // Suppress a package
+            perPackageOption {
+                // will match all packages and sub-packages
+                matchingRegex.set(".*\\.internal.*")
+                suppress.set(true)
+            }
+
+            // separate inherited members to avoid polluting our public API
+            // https://github.com/Kotlin/dokka/issues/1501
+            pluginsMapConfiguration.set(
+                    ["org.jetbrains.dokka.base.DokkaBase": """{ "separateInheritedMembers": true}"""]
+            )
+
+        }
+    }
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -80,7 +103,7 @@ dependencies {
 
     //Maps
     implementation "com.google.maps.android:maps-compose:1.0.1"
-    implementation "com.google.android.gms:play-services-maps:18.0.2"
+    implementation "com.google.android.gms:play-services-maps:18.1.0"
 
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
@@ -129,8 +152,10 @@ dependencies {
     implementation "androidx.work:work-multiprocess:$work_version"
 
     //Firestore
-    implementation 'com.google.firebase:firebase-auth:21.0.3'
-    implementation 'com.google.firebase:firebase-firestore:24.1.1'
+    implementation 'com.google.firebase:firebase-auth:21.0.7'
+    implementation 'com.google.firebase:firebase-firestore:24.2.2'
+    implementation 'com.google.firebase:firebase-functions:20.1.0'
+
 
     //NumberPicker
     implementation "com.chargemap.compose:numberpicker:1.0.3"

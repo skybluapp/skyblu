@@ -17,6 +17,11 @@ import com.skyblu.configuration.MEDIUM_PADDING
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.icons.BasicIcon
 
+/**
+ * Shows data with a label and a preceding icon. Spans an entire width.
+ * @param appConcepts The concept that provides a label and an icon
+ * @param data The data value
+ */
 @Composable
 @Preview(showBackground = true)
 fun AppDataPoint(
@@ -50,6 +55,12 @@ fun AppDataPoint(
     }
 }
 
+/**
+ * Shows data with a label and a preceding icon. Spans an entire width.
+ * @param label The label for the data
+ * @param data The data value
+ * @param icon The icon for the data
+ */
 @Composable
 @Preview(showBackground = true)
 fun AppDataPoint(
@@ -84,7 +95,11 @@ fun AppDataPoint(
     }
 }
 
-
+/**
+ * A composable that shows text with a label underneath
+ * @param text The text to show
+ * @param label The label to show
+ */
 @Preview(showBackground = true)
 @Composable
 fun LabelledText(

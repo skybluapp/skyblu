@@ -18,11 +18,11 @@ suspend fun <T>timeoutTask(task : (onSuccess : () -> Unit, onFail : () -> Unit) 
     var result: ListenableWorker.Result? = null
     task(
         {result = ListenableWorker.Result.success()},
-        {result = ListenableWorker.Result.failure()},
+        {result = ListenableWorker.Result.retry()},
     )
     while (result == null) {
         if (System.currentTimeMillis() - TIMEOUT_MILLIS > startTime) {
-            return ListenableWorker.Result.failure()
+            return ListenableWorker.Result.retry()
         }
         delay(1000)
     }

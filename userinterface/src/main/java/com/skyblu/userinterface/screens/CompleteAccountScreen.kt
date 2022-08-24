@@ -33,7 +33,7 @@ import coil.request.ImageRequest
 import com.skyblu.configuration.*
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.ActionConcept
-import com.skyblu.userinterface.componants.alerts.StyledBanner
+import com.skyblu.userinterface.componants.alerts.AppBanner
 import com.skyblu.userinterface.componants.input.ActionConceptList
 import com.skyblu.userinterface.componants.input.AppNumberPicker
 import com.skyblu.userinterface.componants.input.AppTextField
@@ -43,9 +43,12 @@ import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.AccountSettingsViewModel
 import com.skyblu.userinterface.viewmodels.Alert
 import com.skyblu.userinterface.viewmodels.AppViewModel
-import kotlinx.coroutines.delay
-import timber.log.Timber
 
+/**
+ * A screen that allows the user to complet their account details
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Preview(showBackground = true)
 @Composable()
 fun CompleteAccountScreen(
@@ -72,9 +75,9 @@ fun CompleteAccountScreen(
 
 
     LaunchedEffect(
-        key1 = viewModel.savedUsers.userMap[viewModel.authentication.getThisUserID()]?.username,
+        key1 = viewModel.savedUsers.userMap[viewModel.authentication.thisUser]?.username,
         block = {
-            val username = viewModel.savedUsers.userMap[viewModel.authentication.getThisUserID()]?.username
+            val username = viewModel.savedUsers.userMap[viewModel.authentication.thisUser]?.username
             if(username != null){
                 navController.navigate(Concept.Home.route)
             }
@@ -141,7 +144,7 @@ fun CompleteAccountScreen(
 
             Column(Modifier.fillMaxSize()) {
 
-                StyledBanner(
+                AppBanner(
                     text = appState.message.value,
                     actionConcept = ActionConcept(
                         action = { appState.message.value = "" },

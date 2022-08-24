@@ -10,6 +10,8 @@ import timber.log.Timber
 
 /**
  * A worker to remove a friend from Firestore. Will return failure if task is not completed within timeout
+ * @param appContext The application context
+ * @param workerParameters The parameters for the work
  */
 class UnfriendWorker(
     appContext: Context,
@@ -19,6 +21,9 @@ class UnfriendWorker(
     workerParameters
 ) {
 
+    /**
+     * Work to unfriend a user
+     */
     override suspend fun doWork(): Result {
         val firestore = FirebaseFirestore.getInstance()
         val friendID = inputData.getString(UserParameterNames.FRIENDS) ?: return Result.failure()

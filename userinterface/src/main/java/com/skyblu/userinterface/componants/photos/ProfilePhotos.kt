@@ -21,20 +21,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.skyblu.userinterface.R
 
-@Composable
-@Preview(showBackground = true)
-fun AppDisplayPhotoPreview() {
-    val bitmap = BitmapFactory.decodeResource(
-        LocalContext.current.resources,
-        R.drawable.skydiver
-    ).asImageBitmap()
-    AppDisplayPhoto(
-        size = 60.dp,
-        image = bitmap,
-        onClick = {}
-    )
-}
-
+/**
+ * A composable circular profile picture image
+ * @param size size of the image
+ * @param image an ImageBitmap to display
+ * @param onClick a function that is run when the image is clicked
+ */
 @Composable
 fun AppDisplayPhoto(
     size: Dp,
@@ -67,4 +59,18 @@ fun AppDisplayPhoto(
                 .background(Color.LightGray),
         )
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun AppDisplayPhotoPreview() {
+    val bitmap = BitmapFactory.decodeResource(
+        LocalContext.current.resources,
+        R.drawable.skydiver
+    ).asImageBitmap()
+    AppDisplayPhoto(
+        size = 60.dp,
+        image = bitmap,
+        onClick = {}
+    )
 }

@@ -1,4 +1,4 @@
-package com.skyblu.userinterface
+package com.skyblu.userinterface.screens
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.skyblu.configuration.*
+import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.componants.icons.BasicIcon
 import com.skyblu.userinterface.componants.input.ActionConceptList
@@ -34,6 +35,11 @@ import io.ak1.drawbox.DrawBox
 import io.ak1.drawbox.rememberDrawController
 import java.io.FileOutputStream
 
+/**
+ * A screen that allows the user to confirm the details of a skydive prior to uploading
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable
 fun CompleteSkydiveScreen(
     completeSkydiveViewModel : CompleteSkydiveViewModel = hiltViewModel(),
@@ -68,7 +74,7 @@ fun CompleteSkydiveScreen(
                             menuActions = listOf(
                                 ActionConcept(
                                     action = {
-                                        completeSkydiveViewModel.queueJump(trackingScreenViewModel.state.trackingPoints.value);
+                                        completeSkydiveViewModel.completeJump();
                                         trackingScreenViewModel.state.trackingPoints.value = mutableStateListOf()
                                         navController.navigate(Concept.Home.route)
                                     },

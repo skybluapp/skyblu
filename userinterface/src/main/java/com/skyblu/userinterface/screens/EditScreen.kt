@@ -18,13 +18,18 @@ import com.skyblu.configuration.*
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.componants.alerts.AppDialog
-import com.skyblu.userinterface.componants.alerts.StyledBanner
+import com.skyblu.userinterface.componants.alerts.AppBanner
 import com.skyblu.userinterface.componants.input.*
 import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.AppViewModel
 import com.skyblu.userinterface.viewmodels.EditViewModel
-import timber.log.Timber
 
+
+/**
+ * A screen that allows the user to edit a skydive
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable
 fun EditScreen(
     viewModel: EditViewModel = hiltViewModel(),
@@ -33,8 +38,8 @@ fun EditScreen(
 ) {
     val state = viewModel.state
     val appState = appViewModel.state
-    val p = state.aircraft
     val focusManager = LocalFocusManager.current
+
 
     AppDialog(
         show = state.showDeleteJumpDialog.value,
@@ -48,7 +53,7 @@ fun EditScreen(
         content = {
             
             Column(Modifier.fillMaxSize()) {
-                StyledBanner(
+                AppBanner(
                     text = appState.message.value,
                     actionConcept = ActionConcept(
                         action = { appState.message.value = "" }, concept = Concept.Close
@@ -66,39 +71,39 @@ fun EditScreen(
 
                         ) {
                         AppNumberPicker(
-                            value = state.jumpNumber.value,
+                            value =  state.jump.value?.jumpNumber ?: 0,
                             heading = JUMP_NUMBER_STRING,
-                            onValueChanged = { state.jumpNumber.value = it },
+                            onValueChanged = { state.jump.value = state.jump.value?.copy(jumpNumber = it) },
                             range = JUMP_NUMBER_RANGE,
                             leadingIcon = R.drawable.number,
                             transformation = { "$it${it.suffix()} Jump" }
                         )
                         EnumTextPicker(
                             heading = DROPZONE_STRING,
-                            value = state.dropzone.value,
-                            onValueChanged = {state.dropzone.value = it; },
+                            value = state.jump.value?.dropzone ?: Dropzone.LANGAR,
+                            onValueChanged = {state.jump.value = state.jump.value?.copy(dropzone = it) },
                             list = Dropzone,
                             leadingIcon = R.drawable.location
                         )
                         AppTextField(
-                            value = state.aircraft.value,
-                            onValueChanged = { state.aircraft.value = it },
+                            value = state.jump.value?.aircraft ?: "unknown aircraft",
+                            onValueChanged = { state.jump.value = state.jump.value?.copy(aircraft = it)},
                             imeAction = ImeAction.Next,
                             onIme = { focusManager.moveFocus(FocusDirection.Down) },
                             placeholder = AIRCRAFT_STRING,
                             leadingIcon = R.drawable.aircraft
                         )
                         AppTextField(
-                            value = state.equipment.value,
-                            onValueChanged = { state.equipment.value = it },
+                            value = state.jump.value?.equipment ?: "Unknown Equipment",
+                            onValueChanged = { state.jump.value = state.jump.value?.copy(equipment = it) },
                             imeAction = ImeAction.Next,
                             onIme = { focusManager.moveFocus(FocusDirection.Down) },
                             placeholder = EQUIPMENT_STRING,
                             leadingIcon = R.drawable.parachute
                         )
                         AppTextField(
-                            value = state.title.value,
-                            onValueChanged = { state.title.value = it },
+                            value = state.jump.value?.title ?: "",
+                            onValueChanged = { state.jump.value = state.jump.value?.copy(title = it)},
                             imeAction = ImeAction.Next,
                             onIme = { focusManager.moveFocus(FocusDirection.Down) },
                             placeholder = TITLE_STRING,
@@ -107,8 +112,8 @@ fun EditScreen(
 
 
                         AppTextField(
-                            value = state.description.value,
-                            onValueChanged = { state.description.value = it },
+                            value = state.jump.value?.description ?: "",
+                            onValueChanged = { state.jump.value = state.jump.value?.copy(description = it)},
                             imeAction = ImeAction.Next,
                             onIme = { focusManager.moveFocus(FocusDirection.Down) },
                             placeholder = DESCRIPTION_STRING,
@@ -125,7 +130,7 @@ fun EditScreen(
         },
         topBar = {
             AppTopAppBar(
-                title = state.dropzone.value.title,
+                title = "Edit Jump",
                 navigationIcon = {
                     ActionConceptList(
                         menuActions = listOf(

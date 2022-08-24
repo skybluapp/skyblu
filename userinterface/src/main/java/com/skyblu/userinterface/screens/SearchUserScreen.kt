@@ -21,9 +21,14 @@ import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.AppViewModel
 import com.skyblu.userinterface.viewmodels.SearchUserViewModel
 
+/**
+ * A screen that allows the user to search for other users
+ * @param navController Controls navigation between screens
+ * @param viewModel Manages the state for the screen
+ */
 @Composable
 @Preview(showBackground = true)
-fun Searchscreen(
+fun SearchScreen(
     navController: NavController = rememberNavController(),
     viewModel : SearchUserViewModel = hiltViewModel(),
     appViewModel : AppViewModel = hiltViewModel()

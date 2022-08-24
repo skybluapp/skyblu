@@ -7,6 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import com.skyblu.configuration.Concept
 
+/**
+ * A composable to display multiple icons
+ * @param list The list of concepts to display icons for
+ */
 @Composable
 fun BasicIcon(list: List<Concept>) {
     for (action in list) {
@@ -18,6 +22,10 @@ fun BasicIcon(list: List<Concept>) {
     }
 }
 
+/**
+ * A composable to display an icon from a drawable resource
+ * @param icon The resource int to display an icon for
+ */
 @Composable
 fun BasicIcon(@DrawableRes icon:  Int) {
     Icon(

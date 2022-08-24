@@ -22,30 +22,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.skyblu.userinterface.R
 
-object AppTextFieldDefaults {
-    val borderWidth = 2.dp
-    val height = TextFieldDefaults.MinHeight
-}
 
 
-
-
-@Composable
-fun textFieldColors(): TextFieldColors {
-    return TextFieldDefaults.textFieldColors(
-        textColor = MaterialTheme.colors.onBackground,
-        disabledTextColor = Color.Black,
-        backgroundColor = MaterialTheme.colors.surface,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent,
-        placeholderColor = MaterialTheme.colors.onBackground,
-        cursorColor = MaterialTheme.colors.onBackground,
-        focusedLabelColor = MaterialTheme.colors.onBackground
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * The default textfield composable used by the app
+ * @param value The Sting being displayed
+ * @param onValueChanged An action to perform when the value is changed
+ * @param onIme A action to perform when the IME button is pressed
+ * @param placeholder Text to display when the text box is empty
+ * @param leadingIcon An icon to display before the text
+ * @param trailingIcon An icon to display after the text
+ * @param maxLines The maximum lines allowed in the textbox
+ * @param singleLine True if text should only fill a single line
+ * @param keyboardType The keyboard to use for the text box
+ * @param imeAction The IME action to display
+ * @param error True is the entry is invalid
+ */
 @Composable
 fun AppTextField(
     value: String,
@@ -132,5 +124,28 @@ fun AppTextFieldPreview() {
         placeholder = "TextField",
         leadingIcon = R.drawable.blue_plane,
         trailingIcon = R.drawable.blue_plane
+    )
+}
+
+object AppTextFieldDefaults {
+    val borderWidth = 2.dp
+    val height = TextFieldDefaults.MinHeight
+}
+
+
+
+
+@Composable
+fun textFieldColors(): TextFieldColors {
+    return TextFieldDefaults.textFieldColors(
+        textColor = MaterialTheme.colors.onBackground,
+        disabledTextColor = Color.Black,
+        backgroundColor = MaterialTheme.colors.surface,
+        focusedIndicatorColor = Color.Transparent,
+        unfocusedIndicatorColor = Color.Transparent,
+        disabledIndicatorColor = Color.Transparent,
+        placeholderColor = MaterialTheme.colors.onBackground,
+        cursorColor = MaterialTheme.colors.onBackground,
+        focusedLabelColor = MaterialTheme.colors.onBackground
     )
 }
