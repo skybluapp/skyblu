@@ -6,5 +6,7 @@ This project is still a work in progress, but demonstrates skills in MVVM archit
 
 To use this app, a Google Maps API key must be provided. This should be put in the local.properties file as follows:
     GOOGLE_MAPS_API_KEY = [Your Google Maps Api Key]
+    
+A google play services JSON file containing a Firebase API key is also required forfirebase integration. The app will not run properly without this! 
 
 Thank you for taking the time to check out this project :) 
